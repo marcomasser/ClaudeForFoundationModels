@@ -13,6 +13,7 @@ import Testing
 /// is where issue #7 (empty reasoning segments) manifests.
 @Suite struct ReasoningTranscriptTests {
 
+  @available(anyAppleOS 27.0, *)
   @Test func `thinking stream produces a reasoning entry with text segments`() async throws {
     let model = StubbedClaudeModel(
       fixture: thinkingTurnSSE(thinkingDeltas: ["Let me think. ", "Okay."])
@@ -33,6 +34,7 @@ import Testing
   /// `omitted` (Sonnet 5, Opus 4.7+), the API streams thinking blocks with no
   /// text deltas — only a signature. The transcript then carries a reasoning
   /// entry with zero text segments.
+  @available(anyAppleOS 27.0, *)
   @Test func `signature-only thinking stream yields a reasoning entry with no text`() async throws {
     let model = StubbedClaudeModel(fixture: thinkingTurnSSE(thinkingDeltas: []))
     let session = LanguageModelSession(model: model)
@@ -49,6 +51,7 @@ import Testing
 
   // Replay of redacted thoughts is metadata-driven, so the translator's mark
   // must survive the framework's transcript assembly — this pins that hop.
+  @available(anyAppleOS 27.0, *)
   @Test func `redacted thinking round-trips to a redacted_thinking replay`() async throws {
     let payload = Data([0xDE, 0xAD, 0xBE, 0xEF])
     let model = StubbedClaudeModel(fixture: redactedThinkingTurnSSE(payload: payload))

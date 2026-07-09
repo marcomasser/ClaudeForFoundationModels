@@ -15,6 +15,7 @@ import Testing
 
 @Suite struct WireLevelSessionTests {
 
+  @available(anyAppleOS 27.0, *)
   @Test func `sonnet5 session requests summarized thinking and surfaces reasoning text`()
     async throws
   {

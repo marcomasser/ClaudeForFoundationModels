@@ -9,6 +9,7 @@ import Testing
 @testable import ClaudeForFoundationModels
 
 @Suite struct RequestBuilderTests {
+  @available(anyAppleOS 27.0, *)
   @Test func `instructions become the system prompt`() throws {
     let transcript = Transcript(entries: [
       .instructions(.init(segments: [.text(.init(content: "Be concise."))], toolDefinitions: [])),
@@ -24,6 +25,7 @@ import Testing
     #expect(built.request.messages[0].content == [.text("Hello")])
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `multi-turn entries map to alternating messages`() throws {
     let transcript = Transcript(entries: [
       .prompt(.init(segments: [.text(.init(content: "Hi"))])),
@@ -34,6 +36,7 @@ import Testing
     #expect(built.request.messages.map(\.role) == [.user, .assistant, .user])
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `tool calls and outputs round-trip`() throws {
     let transcript = Transcript(entries: [
       .prompt(.init(segments: [.text(.init(content: "Weather in SF?"))])),
@@ -76,6 +79,7 @@ import Testing
     #expect(result == [.text("72F sunny")])
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `enabled tools become tool definitions with full schema`() throws {
     let request = LanguageModelExecutorGenerationRequest.make(
       transcript: Transcript(entries: [.prompt(.init(segments: [.text(.init(content: "Hi"))]))]),
@@ -102,6 +106,7 @@ import Testing
     #expect(schema["required"] == .array([.string("city")]))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `schema becomes output_config.format with strict json schema`() throws {
     let request = LanguageModelExecutorGenerationRequest.make(
       transcript: Transcript(entries: [
@@ -131,6 +136,7 @@ import Testing
     #expect(schema["additionalProperties"] == .bool(false))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `nested schemas are sanitized recursively`() throws {
     // NestedArgs has a nested @Generable, which encodes nested x-order keys.
     let request = LanguageModelExecutorGenerationRequest.make(
@@ -150,6 +156,7 @@ import Testing
     #expect(json.contains(#""value":"#))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `reasoningLevel maps to effort`() throws {
     var contextOptions = ContextOptions()
     contextOptions.reasoningLevel = .deep
@@ -163,6 +170,7 @@ import Testing
     #expect(built.request.outputConfig?.effort == .high)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `effort is dropped on models that reject it`() throws {
     var contextOptions = ContextOptions()
     contextOptions.reasoningLevel = .deep
@@ -177,6 +185,7 @@ import Testing
     #expect(built.request.outputConfig == nil)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `bare default capabilities send only the core request`() throws {
     // Defaults opt into nothing — a custom model with `.init()` must produce
     // a request every Claude model accepts.
@@ -198,6 +207,7 @@ import Testing
     #expect(built.request.temperature == nil)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `thinking is omitted on models that reject adaptive thinking`() throws {
     let request = LanguageModelExecutorGenerationRequest.make(
       transcript: Transcript(entries: [
@@ -213,6 +223,7 @@ import Testing
   // omitted — thinking blocks stream with empty text and reasoning entries
   // end up with no segments. Every adaptive-thinking model accepts the field,
   // so summarized display is requested unconditionally.
+  @available(anyAppleOS 27.0, *)
   @Test func `adaptive thinking always requests summarized display`() throws {
     let request = LanguageModelExecutorGenerationRequest.make(
       transcript: Transcript(entries: [
@@ -225,6 +236,7 @@ import Testing
     }
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a schema on a model without structured output fails loudly`() throws {
     // A schema is a contract, not a hint — dropping it silently would surface
     // later as a decode failure.
@@ -240,6 +252,7 @@ import Testing
     }
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a custom model's declared capabilities drive the request`() throws {
     var contextOptions = ContextOptions()
     contextOptions.reasoningLevel = .deep
@@ -257,6 +270,7 @@ import Testing
     #expect(built.request.outputConfig?.effort == .high)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a fixed effort overrides reasoningLevel and reaches the wire`() throws {
     var contextOptions = ContextOptions()
     contextOptions.reasoningLevel = .light
@@ -270,6 +284,7 @@ import Testing
     #expect(built.request.outputConfig?.effort == .xhigh)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a custom reasoning level naming a Claude effort maps directly`() throws {
     var contextOptions = ContextOptions()
     contextOptions.reasoningLevel = .custom("xhigh")
@@ -283,6 +298,7 @@ import Testing
     #expect(built.request.outputConfig?.effort == .xhigh)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `reasoning replays as a thinking block in the same assistant turn`() throws {
     let signature = Data([0xAA, 0xBB])
     let transcript = Transcript(entries: [
@@ -321,6 +337,7 @@ import Testing
     #expect(id == "call_1")
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `required tool calling maps to tool_choice any and drops thinking`() throws {
     // The API rejects thinking alongside forced tool use; the forced call is
     // the contract, so thinking yields.
@@ -338,6 +355,7 @@ import Testing
     #expect(built.request.thinking == nil)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `disallowed tool calling maps to tool_choice none and keeps thinking`() throws {
     var options = GenerationOptions()
     options.toolCallingMode = .disallowed
@@ -353,6 +371,7 @@ import Testing
     #expect(built.request.thinking == .adaptive(display: .summarized))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `sampling flows on models without thinking`() throws {
     var options = GenerationOptions()
     options.temperature = 0.5
@@ -365,6 +384,7 @@ import Testing
     #expect(built.request.temperature == 0.5)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `sampling modes map to their wire parameters`() throws {
     func built(_ mode: GenerationOptions.SamplingMode) throws -> MessagesRequest {
       var options = GenerationOptions()
@@ -380,6 +400,7 @@ import Testing
     #expect(try built(.random(probabilityThreshold: 0.9)).topP == 0.9)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `sampling is dropped when thinking is on`() throws {
     // Sampling is withheld on thinking requests — the docs don't promise
     // the 4.6 generation accepts it alongside thinking — sampling
@@ -399,6 +420,7 @@ import Testing
 
   // An unmarked signature-only entry is a thinking block whose display was
   // omitted, not a redacted thought — the API wants it echoed as received.
+  @available(anyAppleOS 27.0, *)
   @Test func `unmarked signature-only reasoning replays as an empty thinking block`() throws {
     let signature = Data([0x01, 0x02, 0x03])
     let transcript = Transcript(entries: [
@@ -412,6 +434,7 @@ import Testing
     #expect(assistant.content[1] == .text("Done."))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `multi-segment reasoning replays without injected separators`() throws {
     let transcript = Transcript(entries: [
       .prompt(.init(segments: [.text(.init(content: "Hi"))])),
@@ -430,6 +453,7 @@ import Testing
     )
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `server tool segments replay as server tool wire blocks`() throws {
     let activity = ClaudeServerToolSegment(
       id: "srv_1",
@@ -481,6 +505,7 @@ import Testing
     #expect(assistant.content[2] == .text("Sunny."))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `an in-flight server tool round trip replays as nothing`() throws {
     // The API hard-rejects an unpaired server_tool_use; a call whose result
     // never arrived (cancelled turn) must not wedge later requests.
@@ -501,6 +526,7 @@ import Testing
     #expect(built.request.messages[1].content == [.text("Working on it…")])
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `reasoning is not replayed when forced tool use disables thinking`() throws {
     var options = GenerationOptions()
     options.toolCallingMode = .required
@@ -524,6 +550,7 @@ import Testing
     #expect(built.request.messages[1].content == [.text("Hello.")])
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a marked redacted entry replays as redacted_thinking even with text`() throws {
     let payload = Data([0xAA])
     let transcript = Transcript(entries: [
@@ -541,6 +568,7 @@ import Testing
     #expect(built.request.messages[1].content[0] == .redactedThinking(payload))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `server tool content survives a Codable round trip`() throws {
     // The framework persists custom segments via Codable; every case must
     // round-trip without losing replay-critical fields.
@@ -603,6 +631,7 @@ import Testing
     }
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `prompt images in history become image blocks`() throws {
     let transcript = Transcript(entries: [
       .prompt(
@@ -624,6 +653,7 @@ import Testing
     #expect(!source.data.isEmpty)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `tool output images become image blocks in the tool result`() throws {
     let transcript = Transcript(entries: [
       .prompt(.init(segments: [.text(.init(content: "Screenshot the page"))])),
@@ -656,6 +686,7 @@ import Testing
     }
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `maximumResponseTokens maps to max_tokens`() throws {
     var options = GenerationOptions()
     options.maximumResponseTokens = 512
@@ -667,6 +698,7 @@ import Testing
     #expect(built.request.maxTokens == 512)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `an empty allowlist fails closed by omitting the tool`() throws {
     // `.allowing([])` permits no domain; the wire can't express that, so the
     // tool is dropped rather than silently becoming unrestricted.
@@ -685,6 +717,7 @@ import Testing
     #expect(built.request.tools?[0].config["blocked_domains"] == nil)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `server tools encode with versioned type and flat config`() throws {
     let request = LanguageModelExecutorGenerationRequest.make(
       transcript: Transcript(entries: [.prompt(.init(segments: [.text(.init(content: "Search"))]))]
@@ -725,16 +758,19 @@ import Testing
 }
 
 @Generable
+@available(anyAppleOS 27.0, *)
 private struct TestArgs {
   var city: String
 }
 
 @Generable
+@available(anyAppleOS 27.0, *)
 private struct NestedArgs {
   var inner: NestedInner
 }
 
 @Generable
+@available(anyAppleOS 27.0, *)
 private struct NestedInner {
   var value: String
 }

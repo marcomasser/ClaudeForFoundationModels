@@ -97,6 +97,7 @@ func thinkingTurnSSE(thinkingDeltas: [String]) -> Data {
 }
 
 /// Text of every reasoning entry in the transcript, in order, joined.
+@available(anyAppleOS 27.0, *)
 func reasoningText(in transcript: Transcript) -> String {
   reasoningEntries(in: transcript)
     .flatMap(\.segments)
@@ -108,6 +109,7 @@ func reasoningText(in transcript: Transcript) -> String {
 }
 
 /// Reasoning entries in the transcript, in order.
+@available(anyAppleOS 27.0, *)
 func reasoningEntries(in transcript: Transcript) -> [Transcript.Reasoning] {
   transcript.compactMap { entry in
     if case .reasoning(let r) = entry { return r }
@@ -217,6 +219,7 @@ func makeTestImage(width: Int = 4, height: Int = 4) -> CGImage {
   return context.makeImage()!
 }
 
+@available(anyAppleOS 27.0, *)
 extension LanguageModelExecutorGenerationRequest {
   /// The SDK's memberwise initializer has no defaults; tests only vary a few
   /// fields.
@@ -243,6 +246,7 @@ extension LanguageModelExecutorGenerationRequest {
 /// injected transport, so `LanguageModelSession` exercises the full pipeline
 /// offline — request building, wire auth, SSE parsing, translation, and the
 /// framework's transcript assembly.
+@available(anyAppleOS 27.0, *)
 struct StubbedClaudeModel: LanguageModel {
   typealias Executor = StubbedExecutor
 
@@ -273,6 +277,7 @@ struct StubbedClaudeModel: LanguageModel {
   }
 }
 
+@available(anyAppleOS 27.0, *)
 struct StubbedExecutor: LanguageModelExecutor {
   typealias Model = StubbedClaudeModel
 
@@ -320,6 +325,7 @@ struct StubbedExecutor: LanguageModelExecutor {
 }
 
 /// Server-tool segments of every response entry in the transcript, in order.
+@available(anyAppleOS 27.0, *)
 func serverToolSegments(in transcript: Transcript) -> [ClaudeServerToolSegment] {
   transcript
     .flatMap { entry -> [Transcript.Segment] in

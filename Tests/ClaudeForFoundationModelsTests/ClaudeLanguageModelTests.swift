@@ -8,6 +8,7 @@ import Testing
 @testable import ClaudeForFoundationModels
 
 @Suite struct ClaudeLanguageModelTests {
+  @available(anyAppleOS 27.0, *)
   @Test func `advertised capabilities follow the model's declared capabilities`() {
     let full = ClaudeLanguageModel(name: .sonnet4_6, auth: .apiKey("k"))
     #expect(full.capabilities.contains(.toolCalling))
@@ -16,6 +17,7 @@ import Testing
     #expect(full.capabilities.contains(.guidedGeneration))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a restricted model doesn't advertise what the bridge won't send`() {
     let limited = ClaudeLanguageModel(
       name: ClaudeModel(
@@ -30,6 +32,7 @@ import Testing
     #expect(!limited.capabilities.contains(.guidedGeneration))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a fixed effort flows into the executor configuration`() {
     let model = ClaudeLanguageModel(name: .opus4_8, auth: .apiKey("k"), fixedEffort: .max)
     #expect(model.executorConfiguration.fixedEffort == .max)

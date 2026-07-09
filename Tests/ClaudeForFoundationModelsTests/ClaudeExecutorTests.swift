@@ -8,6 +8,7 @@ import Testing
 @testable import ClaudeForFoundationModels
 
 @Suite struct ClaudeExecutorTests {
+  @available(anyAppleOS 27.0, *)
   @Test func `api key auth sends x-api-key`() async throws {
     let transport = MockTransport(body: okStream)
     let session = LanguageModelSession(
@@ -20,6 +21,7 @@ import Testing
     #expect(request.value(forHTTPHeaderField: "x-api-key") == "sk-test")
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `proxied auth sends the proxy headers and no api key`() async throws {
     let transport = MockTransport(body: okStream)
     let session = LanguageModelSession(
@@ -36,6 +38,7 @@ import Testing
     #expect(request.value(forHTTPHeaderField: "x-api-key") == nil)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `an empty api key fails before any request is sent`() async throws {
     let transport = MockTransport(body: okStream)
     let session = LanguageModelSession(
@@ -52,6 +55,7 @@ import Testing
     #expect(transport.lastRequest == nil)  // auth is checked before the transport runs
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a streamed response reaches the session`() async throws {
     let session = LanguageModelSession(model: StubbedClaudeModel(fixture: okStream))
 
@@ -60,6 +64,7 @@ import Testing
     #expect(response.content == "Hi")
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `an API error status is mapped to a typed LanguageModelError`() async throws {
     let transport = MockTransport(
       status: 429,

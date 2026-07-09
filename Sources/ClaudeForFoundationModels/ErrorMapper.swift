@@ -7,6 +7,7 @@ import FoundationModels
 
 /// Maps Messages API failures onto the framework's typed errors so app
 /// developers can pattern-match on well-known cases.
+@available(anyAppleOS 27.0, *)
 enum ErrorMapper {
   static func map(_ error: any Error) -> any Error {
     if let api = error as? APIError {

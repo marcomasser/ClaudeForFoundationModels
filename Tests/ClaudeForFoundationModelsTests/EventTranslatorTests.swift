@@ -9,6 +9,7 @@ import Testing
 @testable import ClaudeForFoundationModels
 
 @Suite struct EventTranslatorTests {
+  @available(anyAppleOS 27.0, *)
   @Test func `text deltas stream as multiple cumulative snapshots`() async throws {
     let session = LanguageModelSession(
       model: StubbedClaudeModel(fixture: textTurn(deltas: ["Hello", ", world"]))
@@ -26,6 +27,7 @@ import Testing
     #expect(snapshots.allSatisfy { "Hello, world".hasPrefix($0) })
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `delta token counts are nonzero so partial snapshots deliver`() {
     // The framework paces snapshot delivery by reported token counts, and a
     // zero count defers everything to one final snapshot (issue #2). Per-event
@@ -33,6 +35,7 @@ import Testing
     #expect(EventTranslator.deltaTokenCount > 0)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a tool call round-trips through the session`() async throws {
     let tool = WeatherTool()
     let transport = MockTransport(responses: [
@@ -59,6 +62,7 @@ import Testing
     #expect(followup.contains("Sunny"))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `a tool call with no streamed arguments still invokes the tool`() async throws {
     let tool = PingTool()
     let transport = MockTransport(responses: [
@@ -76,6 +80,7 @@ import Testing
     #expect(response.content == "Done!")
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `structured output decodes from streamed text deltas`() async throws {
     // With output_config.format the response is constrained-decoded JSON
     // streaming as ordinary text deltas — no synthetic tool, no special routing.
@@ -91,6 +96,7 @@ import Testing
     #expect(response.content == StubItinerary(title: "Trip"))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `usage totals are cumulative and wholesale`() async throws {
     let session = LanguageModelSession(
       model: StubbedClaudeModel(
@@ -114,6 +120,7 @@ import Testing
     #expect(session.usage.output.reasoningTokenCount == 0)
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `an SSE error event surfaces as the mapped typed error`() async throws {
     let session = LanguageModelSession(
       model: StubbedClaudeModel(
@@ -135,6 +142,7 @@ import Testing
     }
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `server tool input arriving whole in the start block is parsed`() async throws {
     // The agentic search flow delivers the call input in content_block_start
     // with no input_json_delta events.
@@ -177,6 +185,7 @@ import Testing
     #expect(segment.content == .webSearch(.init(query: "weather")))
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `server tool use and result merge into one transcript segment`() async throws {
     let session = LanguageModelSession(
       model: StubbedClaudeModel(
@@ -247,6 +256,7 @@ import Testing
     )
   }
 
+  @available(anyAppleOS 27.0, *)
   @Test func `unknown events and deltas are ignored, not thrown`() async throws {
     let session = LanguageModelSession(
       model: StubbedClaudeModel(
@@ -316,10 +326,12 @@ private func toolCallTurn(id: String, name: String, argumentDeltas: [String]) ->
 }
 
 @Generable
+@available(anyAppleOS 27.0, *)
 private struct StubItinerary: Equatable {
   let title: String
 }
 
+@available(anyAppleOS 27.0, *)
 private final class PingTool: Tool {
   let name = "ping"
   let description = "Pings."
@@ -336,6 +348,7 @@ private final class PingTool: Tool {
   }
 }
 
+@available(anyAppleOS 27.0, *)
 private final class WeatherTool: Tool {
   let name = "getWeather"
   let description = "Gets the weather for a city."

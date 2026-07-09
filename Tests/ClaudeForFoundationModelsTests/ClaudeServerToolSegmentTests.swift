@@ -7,6 +7,7 @@ import Testing
 @testable import ClaudeForFoundationModels
 
 @Suite struct ClaudeServerToolSegmentTests {
+  @available(anyAppleOS 27.0, *)
   @Test func `segments expose the tool name for generic rendering`() {
     #expect(
       ClaudeServerToolSegment(id: "s", content: .webSearch(.init(query: "q"))).toolName

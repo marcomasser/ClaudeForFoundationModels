@@ -7,6 +7,7 @@ import Testing
 @testable import ClaudeForFoundationModels
 
 @Suite struct AuthModeTests {
+  @available(anyAppleOS 27.0, *)
   @Test func `proxied modes differ by their headers`() {
     #expect(AuthMode.proxied(headers: ["a": "1"]) == AuthMode.proxied(headers: ["a": "1"]))
     #expect(AuthMode.proxied(headers: ["a": "1"]) != AuthMode.proxied(headers: ["a": "2"]))
@@ -15,6 +16,7 @@ import Testing
 
   /// Proxy headers must participate in the executor cache key, so two models
   /// that differ only by their proxy headers get distinct cached executors.
+  @available(anyAppleOS 27.0, *)
   @Test func `proxy headers drive the executor configuration identity`() {
     func config(_ auth: AuthMode) -> ClaudeExecutor.Configuration {
       .init(

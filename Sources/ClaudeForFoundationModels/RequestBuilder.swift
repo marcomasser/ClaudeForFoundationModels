@@ -6,6 +6,7 @@ import Foundation
 import FoundationModels
 
 /// Pure translation: framework request → Messages API request body.
+@available(anyAppleOS 27.0, *)
 enum RequestBuilder {
   struct Built {
     var request: MessagesRequest
