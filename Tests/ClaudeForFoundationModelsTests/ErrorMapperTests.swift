@@ -17,7 +17,10 @@ import Testing
   )
     -> any Error
   {
-    ErrorMapper.map(APIError(kind: kind, message: message, requestID: requestID))
+    ErrorMapper.map(
+      APIError(kind: kind, message: message, requestID: requestID),
+      usesAppAttest: false
+    )
   }
 
   @available(anyAppleOS 27.0, *)
@@ -109,7 +112,9 @@ import Testing
 
   @available(anyAppleOS 27.0, *)
   @Test func `URLError timeout becomes a LanguageModelError timeout`() {
-    guard case LanguageModelError.timeout = ErrorMapper.map(URLError(.timedOut)) else {
+    guard
+      case LanguageModelError.timeout = ErrorMapper.map(URLError(.timedOut), usesAppAttest: false)
+    else {
       Issue.record("expected timeout")
       return
     }
@@ -118,7 +123,10 @@ import Testing
   @available(anyAppleOS 27.0, *)
   @Test func `a non-timeout URLError passes through unchanged`() {
     let original = URLError(.notConnectedToInternet)
-    #expect((ErrorMapper.map(original) as? URLError)?.code == .notConnectedToInternet)
+    #expect(
+      (ErrorMapper.map(original, usesAppAttest: false) as? URLError)?.code
+        == .notConnectedToInternet
+    )
   }
 
   @available(anyAppleOS 27.0, *)
@@ -130,7 +138,8 @@ import Testing
   @Test func `image preparation failures map to unsupportedTranscriptContent`() {
     guard
       case LanguageModelError.unsupportedTranscriptContent(let payload) = ErrorMapper.map(
-        ClaudeImage.Error.tooLarge(byteCount: 99)
+        ClaudeImage.Error.tooLarge(byteCount: 99),
+        usesAppAttest: false
       )
     else {
       Issue.record("expected unsupportedTranscriptContent")
@@ -142,6 +151,23 @@ import Testing
   @available(anyAppleOS 27.0, *)
   @Test func `unrecognized errors pass through unchanged`() {
     struct Marker: Error {}
-    #expect(ErrorMapper.map(Marker()) is Marker)
+    #expect(ErrorMapper.map(Marker(), usesAppAttest: false) is Marker)
+  }
+
+  @Test func `unsupported attestation becomes attestationUnsupported`() {
+    guard case ClaudeError.attestationUnsupported = ErrorMapper.map(AppAttestError.unsupported)
+    else {
+      Issue.record("expected attestationUnsupported")
+      return
+    }
+  }
+
+  @Test func `other attestation failures become attestationFailed`() {
+    for error in [AppAttestError.notYetAvailable, .keyInvalidated] {
+      guard case ClaudeError.attestationFailed = ErrorMapper.map(error, usesAppAttest: false) else {
+        Issue.record("expected attestationFailed for \(error)")
+        return
+      }
+    }
   }
 }
