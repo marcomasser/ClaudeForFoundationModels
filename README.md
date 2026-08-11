@@ -82,12 +82,12 @@ ANTHROPIC_API_KEY=<key> swift run ClaudeExample --search "Top spaceflight news t
 Model identifiers are values of `ClaudeModel`. Use a compiled-in constant, or construct one with explicit capabilities for an ID that isn't compiled in yet (see [Capabilities](#capabilities)):
 
 ```swift
-ClaudeLanguageModel(name: .opus4_8, auth: auth)
+ClaudeLanguageModel(name: .opus5, auth: auth)
 ```
 
-Constants mirror API model IDs (`.opus4_8` is `claude-opus-4-8`) and carry each model's capabilities. New models ship as new constants in package releases.
+Constants mirror API model IDs (`.opus5` is `claude-opus-5`) and carry each model's capabilities. New models ship as new constants in package releases.
 
-Dateless model IDs like `claude-opus-4-8` (the 4.6 generation onward) are pinned snapshots, not evergreen pointers — the model behind an ID doesn't change underneath you.
+Dateless model IDs like `claude-opus-5` (the 4.6 generation onward) are pinned snapshots, not evergreen pointers — the model behind an ID doesn't change underneath you.
 
 ### Capabilities
 
@@ -106,7 +106,7 @@ ClaudeLanguageModel(name: model, auth: auth)
 Pin a Claude effort level for every request with `fixedEffort:`. It takes precedence over the framework's per-request reasoning hints. The API defaults to `high` when no effort is sent:
 
 ```swift
-ClaudeLanguageModel(name: .opus4_8, auth: auth, fixedEffort: .xhigh)
+ClaudeLanguageModel(name: .opus5, auth: auth, fixedEffort: .xhigh)
 ```
 
 The framework's reasoning levels map to effort per request: `.light` → `low`, `.moderate` → `medium`, `.deep` → `high`, and `.custom` accepts a Claude effort name directly (`"xhigh"`, `"max"`). Levels a model doesn't accept are dropped — a reasoning level is a hint, not a contract.
@@ -144,11 +144,9 @@ ClaudeLanguageModel(
 `.appAttest` needs three things:
 
 - **A registered app.** Register the app's team ID and bundle ID in the
-  Anthropic console. The client ID it issues is public configuration that is
-  safe to include in the app binary. App registration is currently rolling
-  out and can be found
-  [here](https://platform.claude.com/settings/workspaces/default/app-integrations)
-  once available.
+  [Anthropic console](https://platform.claude.com/settings/workspaces/default/app-integrations).
+  The client ID it issues is public configuration that is safe to include in
+  the app binary.
 - **The App Attest capability.** Add the App Attest entitlement to the app
   (`com.apple.developer.devicecheck.appattest-environment`); this requires an
   explicitly registered App ID.
