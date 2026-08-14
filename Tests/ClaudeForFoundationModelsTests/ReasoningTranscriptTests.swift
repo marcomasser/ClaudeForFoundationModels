@@ -13,7 +13,6 @@ import Testing
 /// is where issue #7 (empty reasoning segments) manifests.
 @Suite struct ReasoningTranscriptTests {
 
-  @available(anyAppleOS 27.0, *)
   @Test func `thinking stream produces a reasoning entry with text segments`() async throws {
     let model = StubbedClaudeModel(
       fixture: thinkingTurnSSE(thinkingDeltas: ["Let me think. ", "Okay."])
@@ -34,7 +33,6 @@ import Testing
   /// `omitted` (Sonnet 5, Opus 4.7+), the API streams thinking blocks with no
   /// text deltas — only a signature. The transcript then carries a reasoning
   /// entry with zero text segments.
-  @available(anyAppleOS 27.0, *)
   @Test func `signature-only thinking stream yields a reasoning entry with no text`() async throws {
     let model = StubbedClaudeModel(fixture: thinkingTurnSSE(thinkingDeltas: []))
     let session = LanguageModelSession(model: model)
@@ -49,22 +47,29 @@ import Testing
     #expect(reasoning.signature == Data(base64Encoded: "c2ln"))
   }
 
-  // Replay of redacted thoughts is metadata-driven, so the translator's mark
-  // must survive the framework's transcript assembly — this pins that hop.
-  @available(anyAppleOS 27.0, *)
+  // A redacted thought has nothing to show but must go back byte for byte:
+  // it surfaces as a text-less reasoning entry carrying the block.
   @Test func `redacted thinking round-trips to a redacted_thinking replay`() async throws {
     let payload = Data([0xDE, 0xAD, 0xBE, 0xEF])
     let model = StubbedClaudeModel(fixture: redactedThinkingTurnSSE(payload: payload))
     let session = LanguageModelSession(model: model)
     _ = try await session.respond(to: "hi")
 
-    #expect(reasoningEntries(in: session.transcript).count == 1)
+    let entries = reasoningEntries(in: session.transcript)
+    #expect(entries.count == 1)
+    #expect(entries.first?.signature == payload)
+    #expect(reasoningText(in: session.transcript).isEmpty)
 
     let request = LanguageModelExecutorGenerationRequest.make(transcript: session.transcript)
     let built = try RequestBuilder.build(from: request, model: .sonnet5)
     let assistantBlocks = built.request.messages
       .filter { $0.role == .assistant }
       .flatMap(\.content)
-    #expect(assistantBlocks.contains(.redactedThinking(payload)))
+    #expect(
+      assistantBlocks == [
+        .raw(["type": "redacted_thinking", "data": .string(payload.base64EncodedString())]),
+        .raw(["type": "text", "text": "Hello!"]),
+      ]
+    )
   }
 }
