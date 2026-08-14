@@ -124,6 +124,7 @@ public struct ClaudeServerToolActivity: Sendable, Equatable, Identifiable {
   }
 }
 
+@available(anyAppleOS 27.0, *)
 extension Transcript.Response {
   /// The server-side tool round-trip `segment` holds the place of, or `nil`
   /// for an ordinary segment.
@@ -147,6 +148,7 @@ extension Transcript.Response {
   }
 }
 
+@available(anyAppleOS 27.0, *)
 extension Transcript {
   /// Every server-tool round-trip in the conversation, in order, with each
   /// result paired to its call wherever the two arrived. Derived from the

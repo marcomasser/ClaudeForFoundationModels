@@ -5,6 +5,7 @@ import ClaudeAPI
 import Foundation
 import FoundationModels
 
+@available(anyAppleOS 27.0, *)
 extension ClaudeServerToolActivity {
   /// One activity per server-side tool call among `blocks`, in order, with
   /// the result block answering it (if it's among `blocks`) folded in. A

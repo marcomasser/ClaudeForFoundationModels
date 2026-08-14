@@ -16,6 +16,7 @@ import FoundationModels
 /// call its `tool_use` block, the response entry everything else. Every block
 /// is tagged with its position in the turn, so the turn replays in the order
 /// it was sent whatever order the entries ended up in.
+@available(anyAppleOS 27.0, *)
 struct TurnRecord: Sendable, Equatable {
   /// Reserved metadata key on entries the bridge writes. The value is opaque.
   static let metadataKey = "claude.content"
@@ -107,6 +108,7 @@ struct TurnRecord: Sendable, Equatable {
   }
 }
 
+@available(anyAppleOS 27.0, *)
 extension TurnRecord {
   /// The record an entry carries; empty when it carries none or something
   /// unreadable.
@@ -138,6 +140,7 @@ extension TurnRecord {
   }
 }
 
+@available(anyAppleOS 27.0, *)
 extension JSONValue {
   /// The framework value as JSON, structurally; a kind this package doesn't
   /// know reads as `null`.
